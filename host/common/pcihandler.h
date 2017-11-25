@@ -1,11 +1,17 @@
+/**
+ *	pcihandler.h	
+ *
+ *	@author Tommy Jung
+ *	@version 1.0
+ */
+
 #ifndef PCI_HANDLER_H
 #define PCI_HANDLER_H
 
 #include <fpga_pci.h>
+using namespace std;
 
-/*
- * PCI handler
- */
+
 class PCIHandler
 {
 	private:

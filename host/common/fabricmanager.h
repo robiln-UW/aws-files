@@ -1,3 +1,10 @@
+/**
+ *	fabricmanager.h 
+ *
+ *	@author Tommy Jung
+ *	@version 1.0
+ */
+
 #ifndef FABRIC_MANAGER_H
 #define FABRIC_MANAGER_H
 

@@ -1,10 +1,17 @@
+/**
+ *	PCIHandler handles PCIe calls related to AppPF AXI-LITE.
+ *
+ *	@author Tommy Jung
+ *	@version 1.0
+ */
+
 #include <stdexcept>
 #include <string>
 #include <fpga_pci.h>
 #include "pcihandler.h"
 using namespace std;
 
-/*
+/**
  *	default constructor.
  */
 PCIHandler::PCIHandler()
@@ -12,16 +19,21 @@ PCIHandler::PCIHandler()
 	pci_bar_handle = PCI_BAR_HANDLE_INIT;
 }
 
-/*
- * destructor.
+/**
+ *	destructor.
  */
 PCIHandler::~PCIHandler()
 {
 
 }
 
-/*
- *	Attach the handler a to pci bar.
+/**
+ *	Attach the handler to a PCI bar.
+ *	Each PCIHandler instance can be attached to one PCI bar at a time.
+ *	
+ *	@param slot_id FPGA slot id
+ *	@param pf_id Physical Function id
+ *	@param bar_id Base Address Register id
  */
 void PCIHandler::attach(int slot_id, int pf_id, int bar_id)
 {
@@ -32,8 +44,10 @@ void PCIHandler::attach(int slot_id, int pf_id, int bar_id)
 	}
 }
 
-/*
- * Set the value at the address.
+/**
+ * 	Set the value at the address.
+ *
+ *	@param address address to write the value.
  */
 void PCIHandler::poke(uint64_t address, uint32_t value)
 {
@@ -44,8 +58,10 @@ void PCIHandler::poke(uint64_t address, uint32_t value)
 	}
 }
 
-/*
- * Get the value at the address.
+/**
+ * 	Get the value at the address.
+ *
+ * 	@param address address to read from.
  */
 uint32_t PCIHandler::peek(uint64_t address)
 {
@@ -57,15 +73,3 @@ uint32_t PCIHandler::peek(uint64_t address)
 	}
 	return value;
 }
-
-
-
-
-
-
-
-
-
-
-
-
