@@ -1,5 +1,9 @@
-#define	MEM_16G		(1ULL << 34)
-#define DMA_OFFSET 0x10000000
+/**
+ *	DMA controller for transferring data between host buffer and DRAM attached to FPGA.
+ *
+ *	@author Tommy Jung
+ *	@version 1.0
+ */
 
 #include <iostream>
 #include <stdexcept>
@@ -8,10 +12,11 @@
 #include "dmacontroller.h"
 using namespace std;
 
-
+#define	MEM_16G	(1ULL << 34)
+#define DMA_OFFSET 0x10000000
 
 /*
- * default constructor.
+ * 	default constructor.
  */
 DMAController::DMAController()
 {
@@ -19,7 +24,7 @@ DMAController::DMAController()
 }
 
 /*
- * destructor.
+ * 	destructor.
  */
 DMAController::~DMAController()
 {
@@ -30,7 +35,8 @@ DMAController::~DMAController()
 }
 
 /*
- * open the EDMA file descriptor.
+ * 	Open the EDMA file descriptor.
+ *	@param slot_id FPGA slot id.
  */
 void DMAController::init(int slot_id)
 {
@@ -50,7 +56,11 @@ void DMAController::init(int slot_id)
 
 
 /*
- * write the content of the buffer to DRAM.
+ * 	Write the content of the buffer to CL.
+ *	@param buf the starting address of buffer on host.
+ *	@param buf_size the size of the buffer.
+ *	@param channel DMA channel number.
+ *	@param offset offset address on CL.
  */
 void DMAController::write(char * buf, size_t buf_size, int channel, size_t offset)
 {
@@ -78,7 +88,11 @@ void DMAController::write(char * buf, size_t buf_size, int channel, size_t offse
 }
 
 /*
- *	read from DRAM and write to the buffer.
+ *	Read from CL and transfer data to buffer.
+ *	@param buf the starting address of buffer on host.
+ *	@param buf_size the size of the buffer.
+ *	@param channel DMA channel number.
+ *	@param offset offset address on CL.
  */
 void DMAController::read(char * buf, size_t buf_size, int channel, size_t offset)
 {
@@ -102,11 +116,3 @@ void DMAController::read(char * buf, size_t buf_size, int channel, size_t offset
 		read_offset += rc;
 	}
 }
-
-
-
-
-
-
-
-

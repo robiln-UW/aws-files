@@ -1,5 +1,5 @@
 /**
- *	PCIHandler handles PCIe calls related to AppPF AXI-LITE.
+ *	PCIHandler handles PCIe calls for AppPF AXI-LITE.
  *
  *	@author Tommy Jung
  *	@version 1.0
