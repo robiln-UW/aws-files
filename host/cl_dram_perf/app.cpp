@@ -47,7 +47,7 @@ int main(int argc, char ** argv)
 		dmaController->init(SLOT_ID);
 
 		// init CL memory with random char.
-		int buf_size = 1 << 30;
+		size_t buf_size = 1 << 30;
 		char * buf1 = (char *) malloc(sizeof(char) * buf_size);
 		char * buf2 = (char *) malloc(sizeof(char) * buf_size);
 		
