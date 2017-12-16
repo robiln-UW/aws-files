@@ -11,4 +11,4 @@ This repository includes instructions on how to use the on-premise development e
 [/host](host/) - C++ host application for cl.
 
 ## hello world (cl_led_dip)
-[Tutorial](doc/aws-fpga-starters-guide-rev0.pdf)
+[Tutorial](doc/aws-fpga-starters-guide-rev2.pdf)
