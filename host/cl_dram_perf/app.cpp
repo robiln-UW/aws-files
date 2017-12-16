@@ -97,7 +97,7 @@ int main(int argc, char ** argv)
 			// set burst_len
 			pciHandler->poke(BURST_LEN_REG_ADDR, burst_len-1);
 			uint32_t burst_len_read = pciHandler->peek(BURST_LEN_REG_ADDR);
-			printf("burst_len = %d\r\n", burst_len_read);
+			//printf("burst_len = %d\r\n", burst_len);
 			
 			// set write_val
 			uint32_t write_val = 0;
@@ -108,7 +108,7 @@ int main(int argc, char ** argv)
 			
 			pciHandler->poke(WRITE_VAL_REG_ADDR, write_val);
 			uint32_t write_val_read = pciHandler->peek(WRITE_VAL_REG_ADDR);
-			printf("write_val = 0x%x\r\n", write_val_read);
+			//printf("write_val = 0x%x\r\n", write_val_read);
 
 			// mem_ctrl write
 			stopwatch->start();
@@ -116,7 +116,7 @@ int main(int argc, char ** argv)
 			uint16_t vled_read = 0x0000;
 			do {
 				vled_read = fabricManager->getvLED(SLOT_ID);
-				sleep_for(milliseconds(1));
+				sleep_for(milliseconds(33));
 			} while (vled_read != 0x0002);
 			double write_latency = stopwatch->stop();	
 			printf("write,%d,%f\r\n", burst_len, write_latency);
@@ -149,11 +149,11 @@ int main(int argc, char ** argv)
 
 			do {
 				vled_read = fabricManager->getvLED(SLOT_ID);
-				sleep_for(milliseconds(1));
+				sleep_for(milliseconds(33));
 			} while (vled_read != 0x0001);
 			double read_latency = stopwatch->stop();
 			printf("read,%d,%f\r\n", burst_len, read_latency);
-			fabricManager->setvDIP(SLOT_ID, 0x0001);
+			fabricManager->setvDIP(SLOT_ID, 0x0000);
 
 			burst_len *= 2;
 		}
