@@ -45,6 +45,7 @@ void FabricManager::init()
 /**
  * 	Return the image info of FPGA.
  *	@param slot_id the slot id of the FPGA you want the image info of.
+ *	@return image info struct.
  */
 fpga_mgmt_image_info_t*  FabricManager::getImageInfo(int slot_id)
 {
@@ -76,6 +77,7 @@ void FabricManager::setvDIP(int slot_id, uint16_t value)
 /**
  *	Get virtual LED value.
  *  @param slot_id the slot id of the FPGA to get vLED.
+ *  @return vLED value.
  */
 uint16_t FabricManager::getvLED(int slot_id)
 {

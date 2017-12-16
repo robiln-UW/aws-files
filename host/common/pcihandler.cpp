@@ -62,6 +62,7 @@ void PCIHandler::poke(uint64_t address, uint32_t value)
  * 	Get the value at the address.
  *
  * 	@param address address to read from.
+ *  @return the value stored in the address.
  */
 uint32_t PCIHandler::peek(uint64_t address)
 {
