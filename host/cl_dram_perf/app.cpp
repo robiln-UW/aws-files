@@ -116,7 +116,7 @@ int main(int argc, char ** argv)
 			uint16_t vled_read = 0x0000;
 			do {
 				vled_read = fabricManager->getvLED(SLOT_ID);
-				sleep_for(milliseconds(33));
+				sleep_for(milliseconds(5));
 			} while (vled_read != 0x0002);
 			double write_latency = stopwatch->stop();	
 			printf("write,%d,%f\r\n", burst_len, write_latency);
@@ -149,7 +149,8 @@ int main(int argc, char ** argv)
 
 			do {
 				vled_read = fabricManager->getvLED(SLOT_ID);
-				sleep_for(milliseconds(33));
+				sleep_for(milliseconds(5));
+				printf("reading\r\n");
 			} while (vled_read != 0x0001);
 			double read_latency = stopwatch->stop();
 			printf("read,%d,%f\r\n", burst_len, read_latency);
