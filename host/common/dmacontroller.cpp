@@ -13,7 +13,7 @@
 using namespace std;
 
 #define	MEM_16G	(1ULL << 34)
-#define DMA_OFFSET 0x10000000
+#define DMA_OFFSET 0x00000000
 
 /*
  * 	default constructor.
