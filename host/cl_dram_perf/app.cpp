@@ -46,6 +46,7 @@ int main(int argc, char ** argv)
 		// init dmaController.
 		dmaController->init(SLOT_ID);
 
+		/*
 		// init CL memory with random char.
 		size_t buf_size = 1 << 30;
 		char * buf1 = (char *) malloc(sizeof(char) * buf_size);
@@ -84,7 +85,7 @@ int main(int argc, char ** argv)
 	
 		free(buf1);
 		free(buf2);
-
+		*/
 		// set start_addr
 		pciHandler->poke(START_ADDR_REG_ADDR, 0);
 		uint32_t start_addr = pciHandler->peek(START_ADDR_REG_ADDR);
