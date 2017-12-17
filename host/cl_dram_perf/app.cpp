@@ -121,7 +121,7 @@ int main(int argc, char ** argv)
 			double write_latency = stopwatch->stop();	
 			printf("write,%d,%f\r\n", burst_len, write_latency);
 			fabricManager->setvDIP(SLOT_ID, 0x0000);
-
+			/*
 			// validate write		
 			char * buf3 = (char *) malloc(sizeof(char)*64*burst_len);
 			dmaController->read(buf3, 64 * burst_len, 0, 0);
@@ -141,7 +141,7 @@ int main(int argc, char ** argv)
 			}
 	
 			free(buf3);
-
+			*/
 			// mem_ctrl read
 			stopwatch->start();
 			fabricManager->setvDIP(SLOT_ID, 0x0001);
