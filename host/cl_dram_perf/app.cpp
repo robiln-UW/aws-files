@@ -143,6 +143,8 @@ int main(int argc, char ** argv)
 	
 			free(buf3);
 			*/
+
+			/*
 			// mem_ctrl read
 			stopwatch->start();
 			fabricManager->setvDIP(SLOT_ID, 0x0001);
@@ -155,7 +157,7 @@ int main(int argc, char ** argv)
 			double read_latency = stopwatch->stop();
 			printf("read,%d,%f\r\n", burst_len, read_latency);
 			fabricManager->setvDIP(SLOT_ID, 0x0000);
-
+			*/
 			burst_len *= 2;
 		}
 
