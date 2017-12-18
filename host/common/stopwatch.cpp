@@ -30,7 +30,7 @@ void Stopwatch::start()
 		throw runtime_error("Stopwatch has already started.");
 	}
 	_started = true;
-	_start = system_clock::now();
+	_start = high_resolution_clock::now();
 }
 
 /*
@@ -44,7 +44,7 @@ double Stopwatch::stop()
 		throw runtime_error("Stopwatch has not started.");		
 	}
 
-	duration<double> diff = system_clock::now() - _start;
+	duration<double> diff = high_resolution_clock::now() - _start;
 	_started = false;	
 	return diff.count(); 
 }
