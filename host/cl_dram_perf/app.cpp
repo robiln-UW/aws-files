@@ -128,9 +128,9 @@ int main(int argc, char ** argv)
 			for (int j = 0; j < NUM_TRIAL; j++)
 			{
 				// init random char buffer
-				for (int k = 0; k < burst_len*BYTE_PER_BURST; k++)
+				for (size_t k = 0; k < burst_len*BYTE_PER_BURST; k++)
 				{
-					buf1[i] = (char) (97 + (rand() % 26));
+					buf1[k] = (char) (97 + (rand() % 26));
 				}
 				
 				// DMA write
@@ -140,7 +140,7 @@ int main(int argc, char ** argv)
 
 				// calculate hash
 				char rhash1[4] = {0x00,0x00,0x00,0x00};
-				for (int k = 0; k < burst_len*BYTE_PER_BURST/4; k++)
+				for (size_t k = 0; k < burst_len*BYTE_PER_BURST/4; k++)
 				{
 					rhash1[0] = rhash1[0] ^ buf1[4*k];
 					rhash1[1] = rhash1[1] ^ buf1[4*k+1];
@@ -197,7 +197,7 @@ int main(int argc, char ** argv)
 				dma_read_latency[j] = stopwatch->stop();
 				
 				bool valid = true;
-				for (int k = 0; k < burst_len*BYTE_PER_BURST; k++)
+				for (size_t k = 0; k < burst_len*BYTE_PER_BURST; k++)
 				{
 					if (buf2[k] != (j % 16))
 					{
