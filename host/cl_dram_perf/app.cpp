@@ -109,7 +109,7 @@ int main(int argc, char ** argv)
 
 		// real test
 		uint16_t vled_read = 0;	
-		uint32_t burst_len = 1;
+		size_t burst_len = 1;
 		for (int i = 0; i < 29; i++)
 		{
 			// set burst_len
@@ -221,10 +221,10 @@ int main(int argc, char ** argv)
 			double cl_write_avg = MathHelper::average(cl_write_latency, NUM_TRIAL);
 			double cl_write_stdev = MathHelper::stdev(cl_write_latency, NUM_TRIAL);
 				
-			printf("dma,read,%d,%f,%f\r\n", burst_len, dma_read_avg, dma_read_stdev);
-			printf("dma,write,%d,%f,%f\r\n", burst_len, dma_write_avg, dma_write_stdev);
-			printf("cl,read,%d,%f,%f\r\n", burst_len, cl_read_avg, cl_read_stdev);
-			printf("cl,write,%d,%f,%f\r\n", burst_len, cl_write_avg, cl_write_stdev);
+			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg, dma_read_stdev);
+			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg, dma_write_stdev);
+			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg, cl_read_stdev);
+			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg, cl_write_stdev);
 
 			burst_len *= 2;
 		}
