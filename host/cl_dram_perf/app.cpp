@@ -147,6 +147,11 @@ int main(int argc, char ** argv)
 					rhash1[2] = rhash1[2] ^ buf1[4*k+2];
 					rhash1[3] = rhash1[3] ^ buf1[4*k+3];
 				}
+				int rhash_expected = 0;
+				for (int k = 0; k < 4; k++)
+				{
+					rhash_expected = (rhash_expected << 8) + rhash1[3-k];
+				}
 
 				// CL read
 				vled_read = 0;
@@ -157,9 +162,11 @@ int main(int argc, char ** argv)
 				} while (vled_read != 0x0001);						
 				cl_read_latency[j] = stopwatch->stop();
 
-				uint32_t rhash2 = pciHandler->peek(RHASH_REG_ADDR);  
-				
-				printf("[rhash] expected: %x%x%x%x, actual: %x\r\n", rhash1[3], rhash1[2], rhash1[1], rhash1[0], rhash2);
+				uint32_t rhash_actual = pciHandler->peek(RHASH_REG_ADDR);  
+				if (rhash_expected != rhash_actual)
+				{
+					printf("[rhash] expected: %x, actual: %x\r\n", rhash_expected, rhash_actual);
+				}
 
 				// set write_val
 				uint32_t write_val = 0;
