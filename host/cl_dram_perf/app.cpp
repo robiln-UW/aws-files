@@ -24,6 +24,8 @@ using namespace std::chrono;
 #define BURST_LEN_REG_ADDR 0x504
 #define WRITE_VAL_REG_ADDR 0x508
 #define RHASH_REG_ADDR 0x50c
+#define RW_EN_REG_ADDR 0x510
+#define RW_DONE_REG_ADDR 0x514
 #define BUF_SIZE (1ULL << 34)
 
 const int SLOT_ID = 0;
@@ -104,11 +106,15 @@ int main(int argc, char ** argv)
 		double axi_lite_peek_latency_avg = MathHelper::average(axi_lite_peek_latency, NUM_TRIAL*10);
 		double axi_lite_peek_latency_stdev = MathHelper::stdev(axi_lite_peek_latency, NUM_TRIAL*10);
 		
-		printf("[AXI-LITE poke latency] average: %f, stdev: %f\r\n", axi_lite_poke_latency_avg, axi_lite_poke_latency_stdev);
-		printf("[AXI-LITE peek latency] average: %f, stdev: %f\r\n", axi_lite_peek_latency_avg, axi_lite_peek_latency_stdev);
+		printf("[AXI-LITE poke latency] average: %f ms, stdev: %f ms\r\n",
+			axi_lite_poke_latency_avg * 1000,
+			axi_lite_poke_latency_stdev * 1000);
+		printf("[AXI-LITE peek latency] average: %f ms, stdev: %f ms\r\n",
+			axi_lite_peek_latency_avg * 1000,
+			axi_lite_peek_latency_stdev * 1000);
 
 		// real test
-		uint16_t vled_read = 0;	
+		uint32_t ocl_read = 0;	
 		size_t burst_len = 1;
 		for (int i = 0; i < 29; i++)
 		{
@@ -154,13 +160,16 @@ int main(int argc, char ** argv)
 				}
 
 				// CL read
-				vled_read = 0;
+				ocl_read = 0;
 				stopwatch->start();
-				fabricManager->setvDIP(SLOT_ID, 0x0001);
+				pciHandler->poke(RW_EN_REG_ADDR, 1);
+
 				do {
-					vled_read = fabricManager->getvLED(SLOT_ID);
-				} while (vled_read != 0x0001);						
+					ocl_read = pciHandler->peek(RW_DONE_REG_ADDR);
+				} while (ocl_read != 1);						
+
 				cl_read_latency[j] = stopwatch->stop();
+				pciHandler->poke(RW_EN_REG_ADDR, 0);
 
 				uint32_t rhash_actual = pciHandler->peek(RHASH_REG_ADDR);  
 				if (rhash_expected != rhash_actual)
@@ -183,13 +192,16 @@ int main(int argc, char ** argv)
 				}			
 
 				// CL write
-				vled_read = 0;
+				ocl_read = 0;
 				stopwatch->start();
-				fabricManager->setvDIP(SLOT_ID, 0x0002);
+				pciHandler->poke(RW_EN_REG_ADDR, 2);
+
 				do {
-					vled_read = fabricManager->getvLED(SLOT_ID);
-				} while (vled_read != 0x0002);
+					ocl_read = pciHandler->peek(RW_DONE_REG_ADDR);
+				} while (ocl_read != 2);
+
 				cl_write_latency[j] = stopwatch->stop();
+				pciHandler->poke(RW_EN_REG_ADDR, 0);
 
 				// DMA read
 				stopwatch->start();
