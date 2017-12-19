@@ -233,10 +233,10 @@ int main(int argc, char ** argv)
 			double cl_write_avg = MathHelper::average(cl_write_latency, NUM_TRIAL);
 			double cl_write_stdev = MathHelper::stdev(cl_write_latency, NUM_TRIAL);
 				
-			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg, dma_read_stdev);
-			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg, dma_write_stdev);
-			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg, cl_read_stdev);
-			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg, cl_write_stdev);
+			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
+			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
+			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000);
+			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000);
 
 			burst_len *= 2;
 		}
