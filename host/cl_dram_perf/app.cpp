@@ -242,10 +242,10 @@ int main(int argc, char ** argv)
 			double cl_write_stdev = MathHelper::stdev(cl_write_latency, NUM_TRIAL);
 			
 			double cl_read_clk_count_avg = MathHelper::average(cl_read_clk_count, NUM_TRIAL);
-			double cl_read_clk_count_stdev = MathHelper::average(cl_read_clk_count, NUM_TRIAL);
+			double cl_read_clk_count_stdev = MathHelper::stdev(cl_read_clk_count, NUM_TRIAL);
 			
 			double cl_write_clk_count_avg = MathHelper::average(cl_write_clk_count, NUM_TRIAL);
-			double cl_write_clk_count_stdev = MathHelper::average(cl_write_clk_count, NUM_TRIAL);
+			double cl_write_clk_count_stdev = MathHelper::stdev(cl_write_clk_count, NUM_TRIAL);
 	
 			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
 			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
