@@ -32,7 +32,7 @@ using namespace std::chrono;
 const int SLOT_ID = 0;
 const int NUM_TRIAL = 10;
 const int BYTE_PER_BURST = 64;
-const int CLK_FREQ = 125000000;
+const int CLK_FREQ = 250000000;
 int main(int argc, char ** argv)
 {		
 	auto fabricManager = new FabricManager();
