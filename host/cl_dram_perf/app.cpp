@@ -32,7 +32,7 @@ using namespace std::chrono;
 const int SLOT_ID = 0;
 const int NUM_TRIAL = 10;
 const int BYTE_PER_BURST = 64;
-
+const int CLK_FREQ = 125000000;
 int main(int argc, char ** argv)
 {		
 	auto fabricManager = new FabricManager();
@@ -249,10 +249,13 @@ int main(int argc, char ** argv)
 	
 			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
 			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
-			printf("cl,read,%lu,%f,%f,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000,
-				cl_read_clk_count_avg, cl_read_clk_count_stdev);
-			printf("cl,write,%lu,%f,%f,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000,
-				cl_write_clk_count_avg, cl_write_clk_count_stdev);
+			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000);
+			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000);
+			printf("internal_clk,read,%lu,%f,%f\r\n",burst_len, cl_read_clk_count_avg/CLK_FREQ*1000,
+				cl_read_clk_count_stdev/CLK_FREQ*1000);
+			printf("internal_clk,write,%lu,%f,%f\r\n",burst_len, cl_write_clk_count_avg/CLK_FREQ*1000,
+				cl_write_clk_count_stdev/CLK_FREQ*1000);
+
 
 			burst_len *= 2;
 		}
