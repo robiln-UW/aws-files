@@ -2,7 +2,6 @@
  *	Host application for cl_dram_perf	
  *
  *	@author Tommy Jung
- *	@version 1.0
  */
 
 #include <iostream>
@@ -26,6 +25,8 @@ using namespace std::chrono;
 #define RHASH_REG_ADDR 0x50c
 #define RW_EN_REG_ADDR 0x510
 #define RW_DONE_REG_ADDR 0x514
+#define RD_CLK_COUNT_REG_ADDR 0x518
+#define WR_CLK_COUNT_REG_ADDR 0x51c
 #define BUF_SIZE (1ULL << 34)
 
 const int SLOT_ID = 0;
@@ -129,7 +130,9 @@ int main(int argc, char ** argv)
 			double dma_read_latency[NUM_TRIAL] = {0};
 			double dma_write_latency[NUM_TRIAL] = {0};
 			double cl_read_latency[NUM_TRIAL] = {0};
-			double cl_write_latency[NUM_TRIAL] = {0}; 
+			double cl_write_latency[NUM_TRIAL] = {0};
+			uint32_t cl_read_clk_count[NUM_TRIAL] = {0};
+			uint32_t cl_write_clk_count[NUM_TRIAL] = {0}; 
 
 			for (int j = 0; j < NUM_TRIAL; j++)
 			{
@@ -169,13 +172,15 @@ int main(int argc, char ** argv)
 				} while (ocl_read != 1);						
 
 				cl_read_latency[j] = stopwatch->stop();
-				pciHandler->poke(RW_EN_REG_ADDR, 0);
+				pciHandler->poke(RW_EN_REG_ADDR, 0); // deassert read enable
 
 				uint32_t rhash_actual = pciHandler->peek(RHASH_REG_ADDR);  
 				if (rhash_expected != rhash_actual)
 				{
 					printf("[rhash] expected: %x, actual: %x\r\n", rhash_expected, rhash_actual);
 				}
+				
+				cl_read_clk_count[j] = pciHandler->peek(RD_CLK_COUNT_REG_ADDR);
 
 				// set write_val
 				uint32_t write_val = 0;
@@ -201,7 +206,10 @@ int main(int argc, char ** argv)
 				} while (ocl_read != 2);
 
 				cl_write_latency[j] = stopwatch->stop();
-				pciHandler->poke(RW_EN_REG_ADDR, 0);
+				
+				cl_write_clk_count[j] = pciHandler->peek(WR_CLK_COUNT_REG_ADDR);
+
+				pciHandler->poke(RW_EN_REG_ADDR, 0); // deassert write enable
 
 				// DMA read
 				stopwatch->start();
@@ -232,11 +240,19 @@ int main(int argc, char ** argv)
 			double cl_read_stdev = MathHelper::stdev(cl_read_latency, NUM_TRIAL);
 			double cl_write_avg = MathHelper::average(cl_write_latency, NUM_TRIAL);
 			double cl_write_stdev = MathHelper::stdev(cl_write_latency, NUM_TRIAL);
-				
+			
+			double cl_read_clk_count_avg = MathHelper::average(cl_read_clk_count, NUM_TRIAL);
+			double cl_read_clk_count_stdev = MathHelper::average(cl_read_clk_count, NUM_TRIAL);
+			
+			double cl_write_clk_count_avg = MathHelper::average(cl_write_clk_count, NUM_TRIAL);
+			double cl_write_clk_count_stdev = MathHelper::average(cl_write_clk_count, NUM_TRIAL);
+	
 			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
 			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
-			printf("cl,read,%lu,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000);
-			printf("cl,write,%lu,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000);
+			printf("cl,read,%lu,%f,%f,%f,%f\r\n", burst_len, cl_read_avg*1000, cl_read_stdev*1000,
+				cl_read_clk_count_avg, cl_read_clk_count_stdev);
+			printf("cl,write,%lu,%f,%f,%f,%f\r\n", burst_len, cl_write_avg*1000, cl_write_stdev*1000,
+				cl_write_clk_count_avg, cl_write_clk_count_stdev);
 
 			burst_len *= 2;
 		}
