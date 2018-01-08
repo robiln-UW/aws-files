@@ -33,6 +33,7 @@ const int SLOT_ID = 0;
 const int NUM_TRIAL = 10;
 const int BYTE_PER_BURST = 64;
 const int CLK_FREQ = 250000000;
+
 int main(int argc, char ** argv)
 {		
 	auto fabricManager = new FabricManager();
@@ -119,6 +120,8 @@ int main(int argc, char ** argv)
 		size_t burst_len = 1;
 		for (int i = 0; i < 29; i++)
 		{
+			int num_trial = (i < 12) ? NUM_TRIAL * 10 : NUM_TRIAL;	
+
 			// set burst_len
 			pciHandler->poke(BURST_LEN_REG_ADDR, burst_len-1);
 			uint32_t burst_len_read = pciHandler->peek(BURST_LEN_REG_ADDR);
@@ -127,14 +130,14 @@ int main(int argc, char ** argv)
 				throw runtime_error("failed to write burst_len.\r\n");
 			}
 
-			double dma_read_latency[NUM_TRIAL] = {0};
-			double dma_write_latency[NUM_TRIAL] = {0};
-			double cl_read_latency[NUM_TRIAL] = {0};
-			double cl_write_latency[NUM_TRIAL] = {0};
-			uint32_t cl_read_clk_count[NUM_TRIAL] = {0};
-			uint32_t cl_write_clk_count[NUM_TRIAL] = {0}; 
+			double dma_read_latency[num_trial] = {0};
+			double dma_write_latency[num_trial] = {0};
+			double cl_read_latency[num_trial] = {0};
+			double cl_write_latency[num_trial] = {0};
+			uint32_t cl_read_clk_count[num_trial] = {0};
+			uint32_t cl_write_clk_count[num_trial] = {0}; 
 
-			for (int j = 0; j < NUM_TRIAL; j++)
+			for (int j = 0; j < num_trial; j++)
 			{
 				// init random char buffer
 				for (size_t k = 0; k < burst_len*BYTE_PER_BURST; k++)
@@ -231,21 +234,21 @@ int main(int argc, char ** argv)
 				}
 			}
 
-			double dma_read_avg = MathHelper::average(dma_read_latency, NUM_TRIAL);
-			double dma_read_stdev = MathHelper::stdev(dma_read_latency, NUM_TRIAL);
-			double dma_write_avg = MathHelper::average(dma_write_latency, NUM_TRIAL);
-			double dma_write_stdev = MathHelper::stdev(dma_write_latency, NUM_TRIAL);
+			double dma_read_avg = MathHelper::average(dma_read_latency, num_trial);
+			double dma_read_stdev = MathHelper::stdev(dma_read_latency, num_trial);
+			double dma_write_avg = MathHelper::average(dma_write_latency, num_trial);
+			double dma_write_stdev = MathHelper::stdev(dma_write_latency, num_trial);
 				
-			double cl_read_avg = MathHelper::average(cl_read_latency, NUM_TRIAL);
-			double cl_read_stdev = MathHelper::stdev(cl_read_latency, NUM_TRIAL);
-			double cl_write_avg = MathHelper::average(cl_write_latency, NUM_TRIAL);
-			double cl_write_stdev = MathHelper::stdev(cl_write_latency, NUM_TRIAL);
+			double cl_read_avg = MathHelper::average(cl_read_latency, num_trial);
+			double cl_read_stdev = MathHelper::stdev(cl_read_latency, num_trial);
+			double cl_write_avg = MathHelper::average(cl_write_latency, num_trial);
+			double cl_write_stdev = MathHelper::stdev(cl_write_latency, num_trial);
 			
-			double cl_read_clk_count_avg = MathHelper::average(cl_read_clk_count, NUM_TRIAL);
-			double cl_read_clk_count_stdev = MathHelper::stdev(cl_read_clk_count, NUM_TRIAL);
+			double cl_read_clk_count_avg = MathHelper::average(cl_read_clk_count, num_trial);
+			double cl_read_clk_count_stdev = MathHelper::stdev(cl_read_clk_count, num_trial);
 			
-			double cl_write_clk_count_avg = MathHelper::average(cl_write_clk_count, NUM_TRIAL);
-			double cl_write_clk_count_stdev = MathHelper::stdev(cl_write_clk_count, NUM_TRIAL);
+			double cl_write_clk_count_avg = MathHelper::average(cl_write_clk_count, num_trial);
+			double cl_write_clk_count_stdev = MathHelper::stdev(cl_write_clk_count, num_trial);
 	
 			printf("dma,read,%lu,%f,%f\r\n", burst_len, dma_read_avg*1000, dma_read_stdev*1000);
 			printf("dma,write,%lu,%f,%f\r\n", burst_len, dma_write_avg*1000, dma_write_stdev*1000);
