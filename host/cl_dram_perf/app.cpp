@@ -130,12 +130,12 @@ int main(int argc, char ** argv)
 				throw runtime_error("failed to write burst_len.\r\n");
 			}
 
-			double dma_read_latency[num_trial] = {0};
-			double dma_write_latency[num_trial] = {0};
-			double cl_read_latency[num_trial] = {0};
-			double cl_write_latency[num_trial] = {0};
-			uint32_t cl_read_clk_count[num_trial] = {0};
-			uint32_t cl_write_clk_count[num_trial] = {0}; 
+			double dma_read_latency[NUM_TRIAL*10] = {0};
+			double dma_write_latency[NUM_TRIAL*10] = {0};
+			double cl_read_latency[NUM_TRIAL*10] = {0};
+			double cl_write_latency[NUM_TRIAL*10] = {0};
+			uint32_t cl_read_clk_count[NUM_TRIAL*10] = {0};
+			uint32_t cl_write_clk_count[NUM_TRIAL*10] = {0}; 
 
 			for (int j = 0; j < num_trial; j++)
 			{
