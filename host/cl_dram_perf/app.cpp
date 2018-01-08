@@ -120,7 +120,7 @@ int main(int argc, char ** argv)
 		size_t burst_len = 1;
 		for (int i = 0; i < 29; i++)
 		{
-			int num_trial = (i < 12) ? NUM_TRIAL * 10 : NUM_TRIAL;	
+			int num_trial = (i < 12) ? NUM_TRIAL * 100 : NUM_TRIAL;	
 
 			// set burst_len
 			pciHandler->poke(BURST_LEN_REG_ADDR, burst_len-1);
@@ -130,12 +130,12 @@ int main(int argc, char ** argv)
 				throw runtime_error("failed to write burst_len.\r\n");
 			}
 
-			double dma_read_latency[NUM_TRIAL*10] = {0};
-			double dma_write_latency[NUM_TRIAL*10] = {0};
-			double cl_read_latency[NUM_TRIAL*10] = {0};
-			double cl_write_latency[NUM_TRIAL*10] = {0};
-			uint32_t cl_read_clk_count[NUM_TRIAL*10] = {0};
-			uint32_t cl_write_clk_count[NUM_TRIAL*10] = {0}; 
+			double dma_read_latency[NUM_TRIAL*100] = {0};
+			double dma_write_latency[NUM_TRIAL*100] = {0};
+			double cl_read_latency[NUM_TRIAL*100] = {0};
+			double cl_write_latency[NUM_TRIAL*100] = {0};
+			uint32_t cl_read_clk_count[NUM_TRIAL*100] = {0};
+			uint32_t cl_write_clk_count[NUM_TRIAL*100] = {0}; 
 
 			for (int j = 0; j < num_trial; j++)
 			{
