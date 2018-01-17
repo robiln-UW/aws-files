@@ -1,3 +1,10 @@
+/**
+ * 	Stopwatch utility.
+ *
+ *	@author Tommy Jung
+ *	@version 1.0
+ */
+
 #include <chrono>
 #include <stdexcept>
 #include "stopwatch.h"
@@ -6,7 +13,7 @@ using namespace std::chrono;
 
 
 /*
- * default constructor.
+ *	default constructor.
  */
 Stopwatch::Stopwatch()
 {
@@ -14,7 +21,7 @@ Stopwatch::Stopwatch()
 }
 
 /*
- * start the stopwatch.
+ * 	start the stopwatch.
  */
 void Stopwatch::start()
 {
@@ -23,11 +30,12 @@ void Stopwatch::start()
 		throw runtime_error("Stopwatch has already started.");
 	}
 	_started = true;
-	_start = system_clock::now();
+	_start = high_resolution_clock::now();
 }
 
 /*
- * stop the stopwatch and return the duration.
+ * 	stop the stopwatch and return the duration.
+ * 	@return amount of time elapsed in seconds.
  */
 double Stopwatch::stop()
 {
@@ -36,7 +44,7 @@ double Stopwatch::stop()
 		throw runtime_error("Stopwatch has not started.");		
 	}
 
-	duration<double> diff = system_clock::now() - _start;
+	duration<double> diff = high_resolution_clock::now() - _start;
 	_started = false;	
 	return diff.count(); 
 }
