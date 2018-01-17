@@ -3,6 +3,11 @@ module test_reg_file();
 	`define START_ADDR_REG_ADDR 32'h0000_0500
 	`define BURST_LEN_REG_ADDR 32'h0000_0504
 	`define WRITE_VAL_REG_ADDR 32'h0000_0508
+	`define RHASH_REG_ADDR 32'h0000_050c
+	`define RW_EN_REG_ADDR 32'h0000_0510
+	`define RW_DONE_REG_ADDR 32'h0000_0514
+	`define RD_CLK_COUNT_REG_ADDR 32'h0000_0518
+	`define WR_CLK_COUNT_REG_ADDR 32'h0000_051c
 	
 	import tb_type_defines_pkg::*;
 	logic [31:0] rdata;
@@ -139,8 +144,7 @@ module test_reg_file();
 			$display("[%t] Test passed.", $realtime);
 		else
 			$display("[%t] Test failed.", $realtime);
-
-
+		
 	   	tb.kernel_reset();
      	tb.power_down();
       

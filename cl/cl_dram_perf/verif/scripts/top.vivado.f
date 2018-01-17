@@ -48,9 +48,8 @@ ${SH_LIB_DIR}/../ip/src_register_slice/sim/src_register_slice.v
 ${CL_ROOT}/design/axi_lite_bus_t.sv
 ${CL_ROOT}/design/axi4_bus_t.sv
 ${CL_ROOT}/design/reg_file.sv
-${CL_ROOT}/design/mem_ctrl.sv
+${CL_ROOT}/design/mem_ctrl_2.sv
 ${CL_ROOT}/design/dram_interconnect.sv
-${CL_ROOT}/design/mock_dram.sv
 ${CL_ROOT}/design/cl_dram_perf.sv
 
 -f ${HDK_COMMON_DIR}/verif/tb/filelists/tb.${SIMULATOR}.f

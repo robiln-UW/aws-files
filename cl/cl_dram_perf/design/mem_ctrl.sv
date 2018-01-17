@@ -1,3 +1,10 @@
+/**
+ *	mem_ctrl.sv
+ *	AXI-4 master to read and write from DRAM.
+ *
+ * 	@author Tommy Jung
+ */
+
 module mem_ctrl
 (
 	input clk,
@@ -9,6 +16,9 @@ module mem_ctrl
 	input[31:0] start_addr,
 	input[31:0] burst_len,
 	input[31:0] write_val,
+	output[31:0] rhash,
+	output[31:0] rd_clk_count,
+	output[31:0] wr_clk_count,
 	axi4_bus_t.slave axi
 );
 
@@ -24,6 +34,8 @@ logic[1:0] rd_curr_state;
 logic[1:0] rd_next_state;
 logic[31:0] rd_start_addr;
 logic[31:0] rd_burst_len;
+logic[31:0] rhash_reg;
+logic[31:0] rd_clk_count_reg;
 
 always_comb begin
 	if (rst_n) begin
@@ -57,6 +69,9 @@ always_comb begin
 end
 
 assign rd_done = (rd_curr_state == RD_DONE);
+assign rhash = rhash_reg;
+
+assign rd_clk_count = rd_clk_count_reg;
 
 always_ff @ (posedge clk) begin
 	rd_curr_state <= rd_next_state;
@@ -64,15 +79,30 @@ always_ff @ (posedge clk) begin
 		if ((rd_curr_state == RD_WAIT) && rd_enable) begin
 			rd_start_addr <= {2'b0, start_addr[29:0]};
 			rd_burst_len <= {2'b0, burst_len[29:0]};
+			rhash_reg <= 0;
+			rd_clk_count_reg <= 0;
 		end 
 		else if ((rd_curr_state == RD_ARVALID) && axi.arready) begin
 			rd_start_addr <= rd_start_addr + axi.arlen + 1;
 			rd_burst_len <= rd_burst_len - axi.arlen - 1;
 		end	
+		else if ((rd_curr_state == RD_RREADY) && axi.rvalid) begin
+			rhash_reg <= rhash_reg ^ axi.rdata[31:0] ^ axi.rdata[63:32] ^ axi.rdata[95:64] ^ axi.rdata[127:96]
+				^ axi.rdata[159:128] ^ axi.rdata[191:160] ^ axi.rdata[223:192] ^ axi.rdata[255:224]
+				^ axi.rdata[287:256] ^ axi.rdata[319:288] ^ axi.rdata[351:320] ^ axi.rdata[383:352]
+				^ axi.rdata[415:384] ^ axi.rdata[447:416] ^ axi.rdata[479:448] ^ axi.rdata[511:480];
+		end
+
+		if ((rd_curr_state != RD_WAIT) && (rd_curr_state != RD_DONE)) begin
+			rd_clk_count_reg <= rd_clk_count_reg + 1;
+		end 	
+
 	end
 	else begin
 		rd_start_addr <= 0;
 		rd_burst_len <= 0;
+		rhash_reg <= 0;
+		rd_clk_count_reg <= 0;
 	end
 	
 end
@@ -93,6 +123,7 @@ logic[31:0] wr_start_addr;
 logic[31:0] wr_burst_len;
 logic[31:0] wr_burst_count;
 logic[31:0] wr_write_val;
+logic[31:0] wr_clk_count_reg;
 
 always_comb begin
 	if (rst_n) begin
@@ -133,6 +164,7 @@ always_comb begin
 end
 
 assign wr_done = (wr_curr_state == WR_DONE);
+assign wr_clk_count = wr_clk_count_reg;
 
 always_ff @ (posedge clk) begin
 	wr_curr_state <= wr_next_state;
@@ -141,6 +173,7 @@ always_ff @ (posedge clk) begin
 			wr_start_addr <= {2'b0, start_addr[29:0]};
 			wr_burst_len <= {2'b0, burst_len[29:0]};
 			wr_write_val <= write_val;
+			wr_clk_count_reg <= 0;
 		end
 		else if ((wr_curr_state == WR_AWVALID) && axi.awready) begin
 			wr_burst_count <= axi.awlen;
@@ -151,11 +184,16 @@ always_ff @ (posedge clk) begin
 			wr_burst_count <= wr_burst_count - 1;
 		end
 		
+		if ((wr_curr_state != WR_WAIT) && (wr_curr_state != WR_DONE)) begin
+			wr_clk_count_reg <= wr_clk_count_reg + 1;
+		end
+	
 	end
 	else begin
 		wr_start_addr <= 0;
 		wr_burst_len <= 0;
 		wr_write_val <= 0;
+		wr_clk_count_reg <= 0;
 	end
 end
 

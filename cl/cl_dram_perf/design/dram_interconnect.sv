@@ -1,3 +1,10 @@
+/**
+ *	dram_interconnect.sv
+ *	DRAM interconnect that is driven by dual-masters, controlling 4 banks of DRAM by AXI-4 interface.
+ *
+ *	@author: Tommy Jung
+ */
+
 module dram_interconnect
 (
 	input clk,

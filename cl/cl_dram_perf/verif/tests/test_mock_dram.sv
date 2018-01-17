@@ -1,3 +1,9 @@
+/**
+ *	mock_dram.sv
+ *	
+ *  @author: Tommy Jung
+ */
+
 module test_mock_dram();
 	import tb_type_defines_pkg::*;
 	logic[63:0] cl_addr;

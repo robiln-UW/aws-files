@@ -1,3 +1,10 @@
+/**
+ *	axi_lite_bus_t.sv
+ *	AXI-LITE interface
+ *
+ *	@author: Tommy Jung
+ */
+
 `ifndef AXI_LITE_BUS_T
 `define AXI_LITE_BUS_T
 interface axi_lite_bus_t;

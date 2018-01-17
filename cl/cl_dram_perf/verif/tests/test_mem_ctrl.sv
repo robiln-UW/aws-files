@@ -1,19 +1,22 @@
+/**
+ *	test_mem_ctrl.sv
+ *
+ *	@author: Tommy Jung
+ */
+
 module test_mem_ctrl();
 
-	`define START_ADDR_REG_ADDR 32'h0000_0500
-	`define BURST_LEN_REG_ADDR 32'h0000_0504
-	`define WRITE_VAL_REG_ADDR 32'h0000_0508
-
 	import tb_type_defines_pkg::*;
-	logic[63:0] cl_addr = (62 << 6);
+	logic[63:0] cl_addr = 0;
 	logic[63:0] src_addr;
 	logic[63:0] dst_addr;
 	int timeout_count;
 	logic[3:0] status;
-	int len0 = 64*5;
+	int len0 = 64*1;
 	logic[7:0] rdata;
 	logic[7:0] wdata;
-	logic[15:0] vled;
+	logic[31:0] ocl_read;
+	logic[31:0] expected_rhash;
 
 	initial begin
 
@@ -30,7 +33,7 @@ module test_mem_ctrl();
 		tb.nsec_delay(27000);	
 
 		// deassert rd/wr enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'b0));
 	
 		// set up buffer and queue transfer
 		src_addr = 64'h0;
@@ -39,7 +42,7 @@ module test_mem_ctrl();
 
 		for (int i = 0; i < len0; i++) begin
 			tb.hm_put_byte(.addr(src_addr), .d(wdata));
-			wdata += 1;
+			wdata = (wdata << 2) + 5;
 			src_addr++;
 		end
 		#40ns;
@@ -58,31 +61,19 @@ module test_mem_ctrl();
 		end
 
 		// set start_addr, burst_len
-		tb.poke(
-			.addr(`START_ADDR_REG_ADDR),
-			.data(32'h0000_003e),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
-
-		tb.poke(
-			.addr(`BURST_LEN_REG_ADDR),
-			.data(32'h0000_0004),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
+		tb.poke_ocl(.addr(`START_ADDR_REG_ADDR), .data(32'h0000_0000));
+		tb.poke_ocl(.addr(`BURST_LEN_REG_ADDR), .data(32'h0000_0000));
 
 		// assert rd_enable
-		tb.set_virtual_dip_switch(.dip(16'h0001));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h0000_0001));
 
+		ocl_read = 0;
 		timeout_count = 0;
 		do begin
-			vled = tb.get_virtual_led();	
+			tb.peek_ocl(.addr(`RW_DONE_REG_ADDR), .data(ocl_read));	
 			timeout_count++;
 			#10ns;
-		end while ((timeout_count < 200) && vled[0] != 1);
+		end while ((timeout_count < 200) && ocl_read[0] != 1);
 
 		if (timeout_count >= 200) begin
 			$display("[%t] mem_ctrl read timed out.", $realtime);
@@ -90,28 +81,43 @@ module test_mem_ctrl();
 		else begin
 			$display("[%t] mem_ctrl read did not time out. timeout_count = %d", $realtime, timeout_count);
 		end
+		
+		tb.peek_ocl(.addr(`RD_CLK_COUNT_REG_ADDR), .data(ocl_read));
+		$display("[%t] rd_clk_count = %d ", $realtime, ocl_read);
 
 		// deassert rd_enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));	
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'b0));
+	
+		// calculate rhash
+		expected_rhash = 0;
+		for (int i = 0; i < len0; i++) begin
+			rdata = tb.hm_get_byte(.addr(i));
+			case (i % 4)
+				0 : expected_rhash = expected_rhash ^ {24'b0, rdata};
+				1 :	expected_rhash = expected_rhash ^ {16'b0, rdata, 8'b0};
+				2 :	expected_rhash = expected_rhash ^ {8'b0, rdata, 16'b0};
+				3 :	expected_rhash = expected_rhash ^ {rdata, 24'b0};
+			endcase
+		end
+		$display("[%t] expected rhash = %x", $realtime, expected_rhash);
+
+		// read rhash
+		tb.peek_ocl(.addr(`RHASH_REG_ADDR), .data(ocl_read));
+		$display("[%t] actual rhash = %x", $realtime, ocl_read);
 
 		// set write val
-		tb.poke(
-			.addr(`WRITE_VAL_REG_ADDR),
-			.data(32'hdead_beef),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
+		tb.poke_ocl(.addr(`WRITE_VAL_REG_ADDR),.data(32'hdead_beef));
 
 		// assert wr_enable
-		tb.set_virtual_dip_switch(.dip(16'h0002));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h2));
 
+		ocl_read = 0;
 		timeout_count = 0;
 		do begin
-			vled = tb.get_virtual_led();	
+			tb.peek_ocl(.addr(`RW_DONE_REG_ADDR), .data(ocl_read));	
 			timeout_count++;
 			#10ns;
-		end while ((timeout_count < 200) && vled[1] != 1);
+		end while ((timeout_count < 200) && ocl_read[1] != 1);
 
 		if (timeout_count >= 200) begin
 			$display("[%t] mem_ctrl write timed out.", $realtime);
@@ -120,10 +126,12 @@ module test_mem_ctrl();
 			$display("[%t] mem_ctrl write did not time out. timeout_count = %d", $realtime, timeout_count);
 		end
 
-		// deassert wr_enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));
+		tb.peek_ocl(.addr(`WR_CLK_COUNT_REG_ADDR), .data(ocl_read));
+		$display("[%t] wr_clk_count = %d", $realtime, ocl_read);
 
-	   	     
+		// deassert wr_enable
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h0));
+
 		// transfer data from cl to buffer
 		dst_addr = (1 << 12);
 		tb.que_cl_to_buffer(.chan(0), .dst_addr(dst_addr), .cl_addr(cl_addr), .len(len0));

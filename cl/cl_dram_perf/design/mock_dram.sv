@@ -1,3 +1,10 @@
+/**
+ *  mock_dram.sv
+ *	A mock module for DRAM AXI-4 interface for unit-testing.
+ *
+ *	@author: Tommy Jung
+ */
+
 module mock_dram #(parameter ID_WIDTH = 7, parameter WORD_WIDTH = 512, parameter NUM_WORD = 64) (
 	input clk,
 	input rst_n,

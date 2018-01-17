@@ -18,7 +18,8 @@ file copy -force $UNUSED_TEMPLATES_DIR/unused_cl_sda_template.inc     $TARGET_DI
 file copy -force $UNUSED_TEMPLATES_DIR/unused_pcim_template.inc       $TARGET_DIR
 file copy -force $UNUSED_TEMPLATES_DIR/unused_flr_template.inc        $TARGET_DIR
 file copy -force $CL_DIR/design/axi4_bus_t.sv $TARGET_DIR
-file copy -force $CL_DIR/design/mem_ctrl.sv $TARGET_DIR
+file copy -force $CL_DIR/design/sync_fifo.sv $TARGET_DIR
+file copy -force $CL_DIR/design/mem_ctrl_2.sv $TARGET_DIR
 file copy -force $CL_DIR/design/reg_file.sv $TARGET_DIR
 file copy -force $CL_DIR/design/axi_lite_bus_t.sv $TARGET_DIR
 file copy -force $CL_DIR/design/dram_interconnect.sv $TARGET_DIR

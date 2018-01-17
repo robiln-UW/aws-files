@@ -23,3 +23,5 @@
 */verif/*.log
 */verif/*.ini
 */verif/*.setup
+.critical_warnings
+.warnings

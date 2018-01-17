@@ -1,8 +1,11 @@
-module test_mem_ctrl_boundary();
+/**
+ *	test_mem_ctrl_boundary.sv
+ *	test mem_ctrl crossing 4KB boundary.
+ *  
+ *	@author: Tommy Jung
+ */
 
-	`define START_ADDR_REG_ADDR 32'h0000_0500
-	`define BURST_LEN_REG_ADDR 32'h0000_0504
-	`define WRITE_VAL_REG_ADDR 32'h0000_0508
+module test_mem_ctrl_boundary();
 
 	import tb_type_defines_pkg::*;
 	logic[63:0] cl_addr = 64'h3ffffff00;
@@ -13,7 +16,7 @@ module test_mem_ctrl_boundary();
 	int len0 = 64*8;
 	logic[7:0] rdata;
 	logic[7:0] wdata;
-	logic[15:0] vled;
+	logic[31:0] ocl_read;
 
 	initial begin
 
@@ -30,7 +33,7 @@ module test_mem_ctrl_boundary();
 		tb.nsec_delay(27000);	
 
 		// deassert rd/wr enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h0));
 	
 		// set up buffer and queue transfer
 		src_addr = 64'h0;
@@ -46,6 +49,7 @@ module test_mem_ctrl_boundary();
 		
 		// start transfer from buffer to cl
 		tb.start_que_to_cl(.chan(0));
+		status = 0;
 		timeout_count = 0;
 		do begin
 			status[0] = tb.is_dma_to_cl_done(.chan(0));
@@ -58,31 +62,19 @@ module test_mem_ctrl_boundary();
 		end
 
 		// set start_addr, burst_len
-		tb.poke(
-			.addr(`START_ADDR_REG_ADDR),
-			.data(32'h0fff_fffc),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
-
-		tb.poke(
-			.addr(`BURST_LEN_REG_ADDR),
-			.data(32'h0000_0007),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
+		tb.poke_ocl(.addr(`START_ADDR_REG_ADDR), .data(32'h0fff_fffc));
+		tb.poke_ocl(.addr(`BURST_LEN_REG_ADDR), .data(32'h0000_0007));
 
 		// assert rd_enable
-		tb.set_virtual_dip_switch(.dip(16'h0001));
-
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h1));
+		
+		ocl_read = 0;
 		timeout_count = 0;
 		do begin
-			vled = tb.get_virtual_led();	
+			tb.peek_ocl(.addr(`RW_DONE_REG_ADDR), .data(ocl_read));	
 			timeout_count++;
 			#10ns;
-		end while ((timeout_count < 200) && vled[0] != 1);
+		end while ((timeout_count < 200) && ocl_read[0] != 1);
 
 		if (timeout_count >= 200) begin
 			$display("[%t] mem_ctrl read timed out.", $realtime);
@@ -91,27 +83,25 @@ module test_mem_ctrl_boundary();
 			$display("[%t] mem_ctrl read did not time out. timeout_count = %d", $realtime, timeout_count);
 		end
 
+		tb.peek_ocl(.addr(`RD_CLK_COUNT_REG_ADDR), .data(ocl_read));
+		$display("[%t] rd_clk_count = %d ", $realtime, ocl_read);
+
 		// deassert rd_enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));	
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h0));	
 
 		// set write val
-		tb.poke(
-			.addr(`WRITE_VAL_REG_ADDR),
-			.data(32'hdead_beef),
-			.id(6'h0),
-			.size(DataSize::UINT32),
-			.intf(AxiPort::PORT_OCL)
-		);
+		tb.poke_ocl(.addr(`WRITE_VAL_REG_ADDR), .data(32'hdead_beef));
 
 		// assert wr_enable
-		tb.set_virtual_dip_switch(.dip(16'h0002));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h2));
 
+		ocl_read = 0;
 		timeout_count = 0;
 		do begin
-			vled = tb.get_virtual_led();	
+			tb.peek_ocl(.addr(`RW_DONE_REG_ADDR), .data(ocl_read));	
 			timeout_count++;
 			#10ns;
-		end while ((timeout_count < 200) && vled[1] != 1);
+		end while ((timeout_count < 200) && ocl_read[1] != 1);
 
 		if (timeout_count >= 200) begin
 			$display("[%t] mem_ctrl write timed out.", $realtime);
@@ -120,8 +110,11 @@ module test_mem_ctrl_boundary();
 			$display("[%t] mem_ctrl write did not time out. timeout_count = %d", $realtime, timeout_count);
 		end
 
+		tb.peek_ocl(.addr(`WR_CLK_COUNT_REG_ADDR), .data(ocl_read));
+		$display("[%t] wr_clk_count = %d ", $realtime, ocl_read);
+
 		// deassert wr_enable
-		tb.set_virtual_dip_switch(.dip(16'h0000));
+		tb.poke_ocl(.addr(`RW_EN_REG_ADDR), .data(32'h0));
 
 	   	     
 		// transfer data from cl to buffer

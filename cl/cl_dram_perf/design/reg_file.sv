@@ -1,3 +1,10 @@
+/**
+ *	reg_file.sv
+ * 	A register file controlled by AXI-LITE interface.
+ *		
+ *	@author: Tommy Jung
+ */
+
 module reg_file
 (
 	input clk,
@@ -5,20 +12,23 @@ module reg_file
 	axi_lite_bus_t.master axi_bus,
 	output[31:0] start_addr,
 	output[31:0] burst_len,
-	output[31:0] write_val
+	output[31:0] write_val,
+	output[1:0] rw_en,
+	input[1:0] rw_done,
+	input[31:0] rhash,
+	input[31:0] rd_clk_count,
+	input[31:0] wr_clk_count
 );
-
-`define START_ADDR_REG_ADDR 32'h0000_0500
-`define BURST_LEN_REG_ADDR 32'h0000_0504
-`define WRITE_VAL_REG_ADDR 32'h0000_0508
 
 logic[31:0] start_addr_reg;
 logic[31:0] burst_len_reg;
 logic[31:0] write_val_reg;
+logic[1:0] rw_en_reg;
 
 assign start_addr = start_addr_reg;
 assign burst_len = burst_len_reg;
 assign write_val = write_val_reg;
+assign rw_en = rw_en_reg;
 
 logic[31:0] awaddr;
 logic awvalid;
@@ -99,7 +109,7 @@ logic wr_active;
 logic[31:0] wr_addr;
 
 
-// write
+// write operation
 always_ff @ (posedge clk) begin
 	if (!rst_n) begin
 		wr_active <= 0;
@@ -128,6 +138,7 @@ always_ff @ (posedge clk) begin
 		start_addr_reg <= 0;
 		burst_len_reg <= 0;
 		write_val_reg <= 0;
+		rw_en_reg <= 0;
 	end
 	else begin
 		if (wready) begin
@@ -135,6 +146,7 @@ always_ff @ (posedge clk) begin
 				`START_ADDR_REG_ADDR: start_addr_reg <= wdata;
 				`BURST_LEN_REG_ADDR: burst_len_reg <= wdata;
 				`WRITE_VAL_REG_ADDR: write_val_reg <= wdata;
+				`RW_EN_REG_ADDR: rw_en_reg <= wdata[1:0];
 			endcase
 		end	
 	end
@@ -160,7 +172,7 @@ end
 
 assign bresp = 0;
 
-// read
+// read operation
 logic rd_active;
 logic[31:0] rd_addr;
 
@@ -193,6 +205,10 @@ always_ff @ (posedge clk) begin
 				`START_ADDR_REG_ADDR: rdata <= start_addr_reg; 
 				`BURST_LEN_REG_ADDR: rdata <= burst_len_reg;
 				`WRITE_VAL_REG_ADDR: rdata <= write_val_reg;
+				`RHASH_REG_ADDR: rdata <= rhash;
+				`RW_DONE_REG_ADDR: rdata <= {30'b0, rw_done};
+				`RD_CLK_COUNT_REG_ADDR: rdata <= rd_clk_count;	
+				`WR_CLK_COUNT_REG_ADDR: rdata <= wr_clk_count;
 				default: rdata <= 32'hdead_beef;
 			endcase
 		end

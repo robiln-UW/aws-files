@@ -1,3 +1,10 @@
+/**
+ *	cl_dram_perf.sv
+ *	custom logic to measure host-to-DRAM latency, and FPGA-to-DRAM latency.	
+ *
+ *  @author: Tommy Jung
+ */
+
 module cl_dram_perf
 (
 	`include "cl_ports.vh"
@@ -85,6 +92,11 @@ assign sh_ocl_bus.rready = sh_ocl_rready;
 wire[31:0] start_addr;
 wire[31:0] burst_len;
 wire[31:0] write_val;
+wire[31:0] rhash;
+wire[1:0] rw_en;
+wire[1:0] rw_done;
+wire[31:0] rd_clk_count;
+wire[31:0] wr_clk_count;
 
 reg_file REG_FILE(
 	.clk(clk_main_a0),
@@ -92,7 +104,12 @@ reg_file REG_FILE(
 	.axi_bus(sh_ocl_bus),
 	.start_addr(start_addr),
 	.burst_len(burst_len),
-	.write_val(write_val)
+	.write_val(write_val),
+	.rhash(rhash),
+	.rw_en(rw_en),
+	.rw_done(rw_done),
+	.rd_clk_count(rd_clk_count),
+	.wr_clk_count(wr_clk_count)
 );
 
 // DRAM
@@ -146,17 +163,19 @@ dram_interconnect DRAM_INTERCONNECT(
 	.ddr_d_bus(ddr_d_bus)	
 );
 
-assign cl_sh_status_vled[15:2] = 14'b0;
-mem_ctrl MEM_CTRL(
+mem_ctrl_2 MEM_CTRL(
 	.clk(clk_main_a0),
 	.rst_n(rst_main_n_sync),
-	.rd_enable(sh_cl_status_vdip[0]),
-	.wr_enable(sh_cl_status_vdip[1]),
-	.rd_done(cl_sh_status_vled[0]),
-	.wr_done(cl_sh_status_vled[1]),
+	.rd_enable(rw_en[0]),
+	.wr_enable(rw_en[1]),
+	.rd_done(rw_done[0]),
+	.wr_done(rw_done[1]),
 	.start_addr(start_addr),
 	.burst_len(burst_len),
 	.write_val(write_val),	
+	.rhash(rhash),
+	.rd_clk_count(rd_clk_count),
+	.wr_clk_count(wr_clk_count),
 	.axi(mem_ctrl_bus)
 );
 

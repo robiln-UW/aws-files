@@ -1,3 +1,10 @@
+/**
+ *	axi4_bus_t.sv
+ *	AXI-4 interface
+ *
+ *  @author: Tommy Jung
+ */
+
 `ifndef AXI4_BUS_T
 `define AXI4_BUS_T
 
