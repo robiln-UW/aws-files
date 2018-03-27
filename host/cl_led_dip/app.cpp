@@ -16,6 +16,7 @@ int main(int argc, char ** argv)
 		printf("Vendor ID: 0x%x\r\n", info->spec.map[FPGA_APP_PF].vendor_id);
 		printf("Device ID: 0x%x\r\n", info->spec.map[FPGA_APP_PF].device_id);
 
+
 		// set virtual DIP to 0x0000
 		fabricManager->setvDIP(0, 0x0000);
 		cout << "setting vDIP to 0x0000" << endl;
@@ -24,9 +25,17 @@ int main(int argc, char ** argv)
 		uint16_t vLED = fabricManager->getvLED(0);
 		printf("vLED = 0x%x\r\n", vLED);
 
-		// set virtual DIP to 0xbeef
-		fabricManager->setvDIP(0, 0xbeef);
-		cout << "setting vDIP to 0xbeef" << endl;
+		// set virtual DIP to 0x0005
+		fabricManager->setvDIP(0, 0x0005);
+		cout << "setting vDIP to 0x0005" << endl;
+
+		// read virtual LED value
+		uint16_t vLED = fabricManager->getvLED(0);
+		printf("vLED = 0x%x\r\n", vLED);
+
+		// set virtual DIP to 0x0010
+		fabricManager->setvDIP(0, 0x0010);
+		cout << "setting vDIP to 0x0010" << endl;
 
 		// read virtual LED value
 		vLED = fabricManager->getvLED(0);
